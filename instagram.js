@@ -7,6 +7,7 @@
 
 const fetch = require('node-fetch');
 const formData = require('form-data');
+const request = require('request');
 
 module.exports = class Instagram {
   /**
@@ -32,6 +33,7 @@ module.exports = class Instagram {
       shbts       : undefined,
       mcd         : undefined,
       ig_cb       : 1,
+      fbm_124024574287414:"base_domain=.instagram.com",
       //urlgen      : undefined //this needs to be filled in according to my RE
     };
 
@@ -54,10 +56,32 @@ module.exports = class Instagram {
       var key = keys[i];
       cookie += key + '=' + this.essentialValues[key] + (i < keys.length - 1 ? '; ' : '')
     }
-
     return cookie;
   }
 
+//ds_user_id=234407422; 
+//mid=W2gh5wAEAAHIroU6Vaw4ot7k_tn5; 
+/*mcd=3;
+fbm_124024574287414=base_domain=.instagram.com;
+csrftoken=xYK1W6rAEZE5skBApqbDyZKzrV4o4xDY;
+datr=Vfi-W-WkJu88fBdz9BzWlo_Y;
+shbid=5378;
+shbts=1543993118.9626384;
+csrftoken=eUl8Vxg5xRV73zzZ0q2tLkVcF8PylcA4;
+rur=ATN;
+sessionid=234407422%3AXg6FZiSkFVJPKo%3A8;
+urlgen="{}:1gVEIz:-2iEYbqUuw1O8kNuyKIT4kUx0To"
+------------------
+sessionid=5564209542%3AzjiyVhKMC73euv%3A0;
+ds_user_id=5564209542;
+csrftoken=8WCb43Nh9KpxylQvs1PONrzS2Edpt0Dh;
+shbid=11385;
+rur=PRN;
+mid=XApZiwAEAAEvtzPlMLf3xbHA7sBG;
+shbts=1544182157.1888468;
+mcd=3;
+ig_cb=1
+*/
   combineWithBaseHeader(data){
     return Object.assign(this.baseHeader, data)
   }
@@ -352,22 +376,18 @@ module.exports = class Instagram {
     * @return {object} Promise of fetch request
   */
   follow(userId, isUnfollow) {
-    const headers =
-    {
-      'referer': 'https://www.instagram.com/',
-      'origin': 'https://www.instagram.com',
-      'user-agent': this.userAgent,
-      'x-instagram-ajax': '1',
-      'content-type': 'application/json',
-      'x-requested-with': 'XMLHttpRequest',
-      'x-csrftoken': undefined,
-      cookie: ' sessionid=' + this.sessionId + '; csrftoken=' + this.csrfToken + '; mid=WPL0LQAEAAGG3XL5-xHXzClnpqA3; rur=ASH; mid=WRN1_AAEAAE07QksztCl3OCnLj8Y;'
-    }
+    const headers = this.combineWithBaseHeader(
+      {
+        'accept': 'text/html,application/xhtml+xml,application/xml;q0.9,image/webp,image/apng,*.*;q=0.8',
+        'accept-encoding': 'gzip, deflate, br',
+        'cookie': this.generateCookie()
+      }
+    );
 
     return fetch('https://www.instagram.com/web/friendships/' + userId + (isUnfollow == 1 ? '/unfollow' : '/follow'),
       {
         'method': 'post',
-        'headers': this.getHeaders()//headers
+        'headers': headers//headers
       }).then(res => {
         return res
       })
@@ -505,6 +525,7 @@ module.exports = class Instagram {
   */
   getUserMedia(userId, cursor, mediaCounter) {
     cursor = cursor ? cursor : '0'
+    console.log('userId instagram => ', userId);
     mediaCounter = mediaCounter ? mediaCounter : 12
     let form = new formData()
     form.append('q', 'ig_user(' + userId + ') { media.after(' + cursor + ', ' + mediaCounter + ') {\
@@ -545,7 +566,10 @@ module.exports = class Instagram {
         headers: this.getHeaders(),
         method: 'post',
         body: form
-      }).then(r => r.text().then(t => t))
+      }).then(r => { console.log(r); return r.text() }).then(t => { console.log(t); return t;})
+      .catch((e)=>{
+        console.log('e => ', e);
+      })
   }
 
   /**
@@ -621,10 +645,70 @@ module.exports = class Instagram {
     * @return {Object} Promise
   */
   commonSearch(q, rankToken) {
-    rankToken = rankToken ? rankToken : ''
-    return fetch('https://www.instagram.com/web/search/topsearch/?context=blended&query=' + q + '&rank_token=' + rankToken,
-      {
-        headers: this.getHeaders() // no required
-      }).then(t => t.json().then(r => r))
+    return new Promise((resolve)=>{
+      rankToken = rankToken ? rankToken : ''
+      const opts = {
+        url: 'https://www.instagram.com/web/search/topsearch/?context=blended&query=' + q + '&rank_token=' + rankToken,
+        proxy:'http://157.230.28.120:8888',
+        tunnel: false,
+        headers: {
+          cookie:this.getHeaders(),
+          referer: "https://www.instagram.com/"
+        }
+      }
+      request(opts,(err,res,body)=>{
+        if(err){
+          console.log(err);
+          resolve(err);
+        }else {
+          resolve(JSON.parse(body));
+        }
+        
+      })
+    })
   }
+
+  /**
+   * User Media Changes to grapql
+   * @param {String} userId
+   * @param {Number} edge_count
+   * @param {String} query_hash
+   * @return {Object} Promise
+   */
+  userEdges(userId,edge_count,query_hash,end_cursor = null,sessionid,ownUser){
+    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:${edge_count}`
+    if(end_cursor) {
+      url += `,%22after%22:%22${end_cursor}%22}`
+    }else{
+      url += "}"
+    }
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+    }
+    return fetch(url,
+      {
+        'method': 'get',
+        headers   
+      }
+    ).then(t => t.json().then(r => r));
+  }
+
+  userStories(userId){
+    return fetch(`https://i.instagram.com/api/v1/feed/user/${userId}/reel_media/`, {
+      
+      'method': 'get',
+      'headers':
+        this.combineWithBaseHeader(
+          {
+            'accept': 'text/html,application/xhtml+xml,application/xml;q0.9,image/webp,image/apng,*.*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'cookie': this.generateCookie()
+          }
+        )
+    }).then(t => t.json().then(r => r));
+  }
+
 }
