@@ -649,8 +649,6 @@ ig_cb=1
       rankToken = rankToken ? rankToken : ''
       const opts = {
         url: 'https://www.instagram.com/web/search/topsearch/?context=blended&query=' + q + '&rank_token=' + rankToken,
-        proxy:'http://157.230.28.120:8888',
-        tunnel: false,
         headers: {
           cookie:this.getHeaders(),
           referer: "https://www.instagram.com/"
