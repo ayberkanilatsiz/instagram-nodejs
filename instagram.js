@@ -662,11 +662,10 @@ ig_cb=1
           let json_body = [];
           try{
             json_body = JSON.parse(body);
-            console.log(json_body);
             resolve(json_body);
           }catch(e){
             console.log(e);
-            resolve([]);
+            resolve({users:[]});
           }
         }
         
