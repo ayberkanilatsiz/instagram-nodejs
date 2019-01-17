@@ -659,7 +659,15 @@ ig_cb=1
           console.log(err);
           resolve(err);
         }else {
-          resolve(JSON.parse(body));
+          let json_body = [];
+          try{
+            json_body = JSON.parse(body);
+            console.log(json_body);
+            resolve(json_body);
+          }catch(e){
+            console.log(e);
+            resolve([]);
+          }
         }
         
       })
