@@ -676,6 +676,32 @@ ig_cb=1
   /**
    * User Media Changes to grapql
    * @param {String} userId
+   * @param {String} sessionid
+   * @param {String} ownUser
+   * @return {Object} Promise
+   */
+  getHDPic(userId,sessionid,ownUser){
+    let url = `https://i.instagram.com/api/v1/users/${userId}/info/`
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+    }
+    return fetch(url,
+      {
+        'method': 'get',
+        headers   
+      }
+    ).then(t => t.json().then(r => {
+      console.log(r);
+      return r.user.hd_profile_pic_url_info
+    }));
+  }
+
+  /**
+   * User Media Changes to grapql
+   * @param {String} userId
    * @param {Number} edge_count
    * @param {String} query_hash
    * @return {Object} Promise
