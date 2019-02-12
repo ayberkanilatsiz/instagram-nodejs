@@ -706,9 +706,6 @@ ig_cb=1
    * @return {Object} Promise
    */
   getHighlight(mediaId,sessionid,ownUser){
-    console.log(mediaId);
-    console.log(sessionid);
-    console.log(ownUser);
     let url = `https://i.instagram.com/api/v1/feed/reels_media/?user_ids=${mediaId}`
     let headers = {
       'x-ig-capabilities': '3w==',
