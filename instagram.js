@@ -694,7 +694,34 @@ ig_cb=1
         headers   
       }
     ).then(t => t.json().then(r => {
-      console.log(r);
+      return r
+    }));
+  }
+
+  /**
+   * User Media Changes to grapql
+   * @param {String} mediaId
+   * @param {String} sessionid
+   * @param {String} ownUser
+   * @return {Object} Promise
+   */
+  getHighlight(mediaId,sessionid,ownUser){
+    console.log(mediaId);
+    console.log(sessionid);
+    console.log(ownUser);
+    let url = `https://i.instagram.com/api/v1/feed/reels_media/?user_ids=${mediaId}`
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+    }
+    return fetch(url,
+      {
+        'method': 'get',
+        headers   
+      }
+    ).then(t => t.json().then(r => {
       return r
     }));
   }
