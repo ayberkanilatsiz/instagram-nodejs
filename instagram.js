@@ -8,6 +8,7 @@
 const fetch = require('node-fetch');
 const formData = require('form-data');
 const request = require('request');
+const qs = require('query-string');
 
 module.exports = class Instagram {
   /**
@@ -169,9 +170,8 @@ ig_cb=1
     * @param {Boolean} selfSelf if call by self
     * @return {Object} array followers list
   */
-  getUserFollowers(userId, command, params, followersCounter, selfSelf) {
+  getUserFollowers(userId, command, params, followersCounter, selfSelf, sessionid, ownUser) {
     const self = this
-
     if (!selfSelf)
       self.userIdFollowers[userId] = []
 
@@ -204,18 +204,17 @@ ig_cb=1
     form.append('q', postBody)
 
     self.receivePromises[userId] = 1
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+    }
     return fetch('https://www.instagram.com/query/',
       {
         'method': 'post',
         'body': form,
-        'headers':
-          this.combineWithBaseHeader(
-            {
-              'accept': 'text/html,application/xhtml+xml,application/xml;q0.9,image/webp,image/apng,*.*;q=0.8',
-              'accept-encoding': 'gzip, deflate, br',
-              'cookie': this.generateCookie()
-            }
-          )
+        'headers':headers
       }).then(res => {
         return res.text().then(function (response) {
           //prepare convert to json
@@ -225,8 +224,7 @@ ig_cb=1
             json = JSON.parse(response)
           }
           catch (e) {
-            console.log('Session error')
-            console.log(response)
+            console.log('Error',e);
             return [];
           }
 
@@ -525,7 +523,6 @@ ig_cb=1
   */
   getUserMedia(userId, cursor, mediaCounter) {
     cursor = cursor ? cursor : '0'
-    console.log('userId instagram => ', userId);
     mediaCounter = mediaCounter ? mediaCounter : 12
     let form = new formData()
     form.append('q', 'ig_user(' + userId + ') { media.after(' + cursor + ', ' + mediaCounter + ') {\
@@ -733,7 +730,7 @@ ig_cb=1
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHDPic(userId,sessionid,ownUser){
+  getHDPic(userId,sessionid,ownUser,detail=false){
     let url = `https://i.instagram.com/api/v1/users/${userId}/info/`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -747,8 +744,36 @@ ig_cb=1
         headers   
       }
     ).then(t => t.json().then(r => {
-      return r.user.hd_profile_pic_url_info
+      if(!detail){
+        return r.user.hd_profile_pic_url_info
+      }else{
+        return r.user
+      }
+      
     }));
+  }
+
+  /*
+  */
+  getCustomUserFollowers(query_hash,userId,sessionid,ownUser,end_cursor=null){
+    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:24`
+    if(end_cursor) {
+      url += `,%22after%22:%22${end_cursor}%22}`
+    }else{
+      url += "}"
+    }
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+    }
+    return fetch(url,
+      {
+        'method': 'get',
+        headers   
+      }
+    ).then(t => t.json().then(r => r));
   }
 
   /**
