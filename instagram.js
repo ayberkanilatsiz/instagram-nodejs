@@ -9,14 +9,12 @@ const fetch = require('node-fetch');
 const formData = require('form-data');
 const request = require('request');
 const qs = require('query-string');
-const HttpsProxyAgent = require('https-proxy-agent');
 
 module.exports = class Instagram {
   /**
     * Constructor
   */
-  constructor(csrfToken, sessionId, proxy_host) {
-    this.proxy_host = proxy_host;
+  constructor(csrfToken, sessionId) {
     this.csrfToken = csrfToken
     this.sessionId = sessionId
     this.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'
@@ -138,12 +136,9 @@ ig_cb=1
             'cookie': this.generateCookie()
           }
         ),
-      'agent': new HttpsProxyAgent(this.proxy_host)
     }
     
     return fetch('https://www.instagram.com/' + username, fetch_data).then(res => res.text().then(function (data) {
-      // console.log(data)
-    
       const regex = /window\._sharedData = (.*);<\/script>/;
       const match = regex.exec(data);
       if (typeof match[1] === 'undefined') {
