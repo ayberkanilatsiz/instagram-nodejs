@@ -755,7 +755,7 @@ ig_cb=1
 
   /*
   */
-  getCustomUserFollowers(query_hash,userId,sessionid,ownUser,end_cursor=null){
+  getCustomUserFollowers(query_hash,userId,sessionid,ownUser,end_cursor=null,csrfToken){
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:24`
     if(end_cursor) {
       url += `,%22after%22:%22${end_cursor}%22}`
@@ -766,7 +766,8 @@ ig_cb=1
       'x-ig-capabilities': '3w==',
       'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
       'host': 'i.instagram.com',
-      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
     }
     return fetch(url,
       {
