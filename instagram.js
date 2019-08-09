@@ -781,7 +781,7 @@ ig_cb=1
    * @param {String} query_hash
    * @return {Object} Promise
    */
-  userEdges(userId,edge_count,query_hash,end_cursor = null,sessionid,ownUser){
+  userEdges(userId,edge_count,query_hash,end_cursor = null,sessionid,ownUser,csrfToken){
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:${edge_count}`
     if(end_cursor) {
       url += `,%22after%22:%22${end_cursor}%22}`
@@ -791,15 +791,16 @@ ig_cb=1
     let headers = {
       'x-ig-capabilities': '3w==',
       'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
-      'host': 'i.instagram.com',
-      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
     }
     return fetch(url,
       {
         'method': 'get',
         headers   
       }
-    ).then(t => t.json().then(r => r));
+    ).then(t => t.json().then( (json)=> json ));
   }
 
   userStories(userId){
