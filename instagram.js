@@ -124,18 +124,19 @@ ig_cb=1
     * @param {String} username
     * @return {Object} Promise
   */
-  getUserDataByUsername(username) {
+  getUserDataByUsername(username,sessionid,ownUser,csrfToken) {
+
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
     
     var fetch_data = {
       'method': 'get',
-      'headers':
-        this.combineWithBaseHeader(
-          {
-            'accept': 'text/html,application/xhtml+xml,application/xml;q0.9,image/webp,image/apng,*.*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'cookie': this.generateCookie()
-          }
-        ),
+      headers
     }
     
     return fetch('https://www.instagram.com/' + username, fetch_data).then(res => res.text().then(function (data) {
@@ -744,6 +745,7 @@ ig_cb=1
         headers   
       }
     ).then(t => t.json().then(r => {
+      console.log(r);
       if(!detail){
         return r.user.hd_profile_pic_url_info
       }else{
