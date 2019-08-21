@@ -745,7 +745,6 @@ ig_cb=1
         headers   
       }
     ).then(t => t.json().then(r => {
-      console.log(r);
       if(!detail){
         return r.user.hd_profile_pic_url_info
       }else{
