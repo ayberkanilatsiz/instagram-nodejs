@@ -25,16 +25,16 @@ module.exports = class Instagram {
     this.searchTypes = ['location', 'hashtag']
 
     this.essentialValues = {
-      sessionid   : undefined,
-      ds_user_id  : undefined,
-      csrftoken   : undefined,
-      shbid       : undefined,
-      rur         : undefined,
-      mid         : undefined,
-      shbts       : undefined,
-      mcd         : undefined,
-      ig_cb       : 1,
-      fbm_124024574287414:"base_domain=.instagram.com",
+      sessionid: undefined,
+      ds_user_id: undefined,
+      csrftoken: undefined,
+      shbid: undefined,
+      rur: undefined,
+      mid: undefined,
+      shbts: undefined,
+      mcd: undefined,
+      ig_cb: 1,
+      fbm_124024574287414: "base_domain=.instagram.com",
       //urlgen      : undefined //this needs to be filled in according to my RE
     };
 
@@ -43,80 +43,80 @@ module.exports = class Instagram {
       'origin': 'https://www.instagram.com',
       'referer': 'https://www.instagram.com/',
       'upgrade-insecure-requests': '1',
-      'user-agent': this.userAgent,    
+      'user-agent': this.userAgent,
     }
   }
 
-  
-  generateCookie(simple){
+
+  generateCookie(simple) {
     if (simple) return 'ig_cb=1'
 
     var cookie = ''
     var keys = Object.keys(this.essentialValues)
-    for (var i = 0; i < keys.length; i++){
+    for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
       cookie += key + '=' + this.essentialValues[key] + (i < keys.length - 1 ? '; ' : '')
     }
     return cookie;
   }
 
-//ds_user_id=234407422; 
-//mid=W2gh5wAEAAHIroU6Vaw4ot7k_tn5; 
-/*mcd=3;
-fbm_124024574287414=base_domain=.instagram.com;
-csrftoken=xYK1W6rAEZE5skBApqbDyZKzrV4o4xDY;
-datr=Vfi-W-WkJu88fBdz9BzWlo_Y;
-shbid=5378;
-shbts=1543993118.9626384;
-csrftoken=eUl8Vxg5xRV73zzZ0q2tLkVcF8PylcA4;
-rur=ATN;
-sessionid=234407422%3AXg6FZiSkFVJPKo%3A8;
-urlgen="{}:1gVEIz:-2iEYbqUuw1O8kNuyKIT4kUx0To"
-------------------
-sessionid=5564209542%3AzjiyVhKMC73euv%3A0;
-ds_user_id=5564209542;
-csrftoken=8WCb43Nh9KpxylQvs1PONrzS2Edpt0Dh;
-shbid=11385;
-rur=PRN;
-mid=XApZiwAEAAEvtzPlMLf3xbHA7sBG;
-shbts=1544182157.1888468;
-mcd=3;
-ig_cb=1
-*/
-  combineWithBaseHeader(data){
+  //ds_user_id=234407422; 
+  //mid=W2gh5wAEAAHIroU6Vaw4ot7k_tn5; 
+  /*mcd=3;
+  fbm_124024574287414=base_domain=.instagram.com;
+  csrftoken=xYK1W6rAEZE5skBApqbDyZKzrV4o4xDY;
+  datr=Vfi-W-WkJu88fBdz9BzWlo_Y;
+  shbid=5378;
+  shbts=1543993118.9626384;
+  csrftoken=eUl8Vxg5xRV73zzZ0q2tLkVcF8PylcA4;
+  rur=ATN;
+  sessionid=234407422%3AXg6FZiSkFVJPKo%3A8;
+  urlgen="{}:1gVEIz:-2iEYbqUuw1O8kNuyKIT4kUx0To"
+  ------------------
+  sessionid=5564209542%3AzjiyVhKMC73euv%3A0;
+  ds_user_id=5564209542;
+  csrftoken=8WCb43Nh9KpxylQvs1PONrzS2Edpt0Dh;
+  shbid=11385;
+  rur=PRN;
+  mid=XApZiwAEAAEvtzPlMLf3xbHA7sBG;
+  shbts=1544182157.1888468;
+  mcd=3;
+  ig_cb=1
+  */
+  combineWithBaseHeader(data) {
     return Object.assign(this.baseHeader, data)
   }
 
-  updateEssentialValues(src, isHTML){
+  updateEssentialValues(src, isHTML) {
     //assumes that essential values will be extracted from a cookie unless specified by the isHTML bool
 
-    if (!isHTML){
+    if (!isHTML) {
       var keys = Object.keys(this.essentialValues)
 
-        for (var i = 0; i < keys.length; i++){
-          var key = keys[i];
-          if (!this.essentialValues[key])
-            for (let cookie in src)
-              if (src[cookie].includes(key) && !src[cookie].includes(key + '=""')){
-                var cookieValue = src[cookie].split(';')[0].replace(key + '=', '')
-                this.essentialValues[key] = cookieValue
-                break;
-              }
-        }
-      } else {
-        var subStr = src;
-
-        var startStr = '<script type="text/javascript">window._sharedData = ';
-        var start = subStr.indexOf(startStr) + startStr.length;
-        subStr = subStr.substr(start, subStr.length);
-        
-        subStr = subStr.substr(0, subStr.indexOf('</script>') - 1);
-
-        var json = JSON.parse(subStr);
-
-        this.essentialValues.csrftoken = json.config.csrf_token;
-        this.rollout_hash = json.rollout_hash;
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        if (!this.essentialValues[key])
+          for (let cookie in src)
+            if (src[cookie].includes(key) && !src[cookie].includes(key + '=""')) {
+              var cookieValue = src[cookie].split(';')[0].replace(key + '=', '')
+              this.essentialValues[key] = cookieValue
+              break;
+            }
       }
+    } else {
+      var subStr = src;
+
+      var startStr = '<script type="text/javascript">window._sharedData = ';
+      var start = subStr.indexOf(startStr) + startStr.length;
+      subStr = subStr.substr(start, subStr.length);
+
+      subStr = subStr.substr(0, subStr.indexOf('</script>') - 1);
+
+      var json = JSON.parse(subStr);
+
+      this.essentialValues.csrftoken = json.config.csrf_token;
+      this.rollout_hash = json.rollout_hash;
+    }
   }
 
   /**
@@ -124,7 +124,7 @@ ig_cb=1
     * @param {String} username
     * @return {Object} Promise
   */
-  getUserDataByUsername(username,sessionid,ownUser,csrfToken) {
+  getUserDataByUsername(username, sessionid, ownUser, csrfToken) {
 
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -133,12 +133,12 @@ ig_cb=1
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
-    
+
     var fetch_data = {
       'method': 'get',
       headers
     }
-    
+
     return fetch('https://www.instagram.com/' + username, fetch_data).then(res => res.text().then(function (data) {
       const regex = /window\._sharedData = (.*);<\/script>/;
       const match = regex.exec(data);
@@ -146,7 +146,9 @@ ig_cb=1
         return '';
       }
       return JSON.parse(match[1]).entry_data.ProfilePage[0];
-    }))
+    })).catch(err => {
+      return err;
+    })
   }
 
   /**
@@ -213,7 +215,7 @@ ig_cb=1
       {
         'method': 'post',
         'body': form,
-        'headers':headers
+        'headers': headers
       }).then(res => {
         return res.text().then(function (response) {
           //prepare convert to json
@@ -223,7 +225,7 @@ ig_cb=1
             json = JSON.parse(response)
           }
           catch (e) {
-            console.log('Error',e);
+            console.log('Error', e);
             return [];
           }
 
@@ -277,10 +279,10 @@ ig_cb=1
               'cookie': this.generateCookie(true)
             }
           )
-      }).then( t => {
+      }).then(t => {
         this.updateEssentialValues(t.headers._headers['set-cookie'])
         return t.text()
-      }).then( html => {
+      }).then(html => {
         this.updateEssentialValues(html, true)
         return this.essentialValues.csrftoken
       }).catch(() =>
@@ -294,35 +296,35 @@ ig_cb=1
     * @param {String} password
     * @return {Object} Promise
   */
- auth(username, password) {
-  var formdata = 'username=' + username + '&password=' + password + '&queryParams=%7B%7D'
+  auth(username, password) {
+    var formdata = 'username=' + username + '&password=' + password + '&queryParams=%7B%7D'
 
-  var options = {
-    method  : 'POST',
-    body    : formdata,
-    headers : 
-      this.combineWithBaseHeader(
-        {
-          'accept'            : '*/*',
-          'accept-encoding'   : 'gzip, deflate, br',
-          'content-length'    : formdata.length,
-          'content-type'      : 'application/x-www-form-urlencoded',
-          'cookie'            : 'ig_cb=' + this.essentialValues.ig_cb,
-          'x-csrftoken'       : this.csrfToken,
-          'x-instagram-ajax'  : this.rollout_hash,
-          'x-requested-with'  : 'XMLHttpRequest',
-        }
+    var options = {
+      method: 'POST',
+      body: formdata,
+      headers:
+        this.combineWithBaseHeader(
+          {
+            'accept': '*/*',
+            'accept-encoding': 'gzip, deflate, br',
+            'content-length': formdata.length,
+            'content-type': 'application/x-www-form-urlencoded',
+            'cookie': 'ig_cb=' + this.essentialValues.ig_cb,
+            'x-csrftoken': this.csrfToken,
+            'x-instagram-ajax': this.rollout_hash,
+            'x-requested-with': 'XMLHttpRequest',
+          }
+        )
+    }
+
+    return fetch('https://www.instagram.com/accounts/login/ajax/', options).then(
+      t => {
+        this.updateEssentialValues(t.headers._headers['set-cookie'])
+        return this.essentialValues.sessionid;
+      }).catch(() =>
+        console.log('Instagram authentication failed (challenge required erro)')
       )
   }
-
-  return fetch('https://www.instagram.com/accounts/login/ajax/', options).then(
-    t => {
-      this.updateEssentialValues(t.headers._headers['set-cookie'])
-      return this.essentialValues.sessionid;
-    }).catch(() =>
-      console.log('Instagram authentication failed (challenge required erro)')
-    )
-}
 
   /**
       * Registration for instagram, returning true or false
@@ -372,15 +374,17 @@ ig_cb=1
     * @param {boolean} isUnfollow
     * @return {object} Promise of fetch request
   */
-  follow(userId, isUnfollow) {
+  follow(userId, isUnfollow, sessionid, ownUser, csrfToken) {
     const headers = this.combineWithBaseHeader(
       {
-        'accept': 'text/html,application/xhtml+xml,application/xml;q0.9,image/webp,image/apng,*.*;q=0.8',
-        'accept-encoding': 'gzip, deflate, br',
-        'cookie': this.generateCookie()
+        "x-csrftoken": `${csrfToken}`,
+        'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`
       }
     );
-
+    // 'accept': 'text/html,application/xhtml+xml,application/xml;q0.9,image/webp,image/apng,*.*;q=0.8',
+    // 'accept-encoding': 'gzip, deflate, br',
+    // "sec-fetch-mode": "cors",
+    // "sec-fetch-site": "same-origin",
     return fetch('https://www.instagram.com/web/friendships/' + userId + (isUnfollow == 1 ? '/unfollow' : '/follow'),
       {
         'method': 'post',
@@ -475,6 +479,7 @@ ig_cb=1
       )
   }
 
+
   /**
     * Attention: postId need transfer only as String (reason int have max value - 2147483647)
     * @example postID - '1510335854710027921'
@@ -562,8 +567,8 @@ ig_cb=1
         headers: this.getHeaders(),
         method: 'post',
         body: form
-      }).then(r => { console.log(r); return r.text() }).then(t => { console.log(t); return t;})
-      .catch((e)=>{
+      }).then(r => { console.log(r); return r.text() }).then(t => { console.log(t); return t; })
+      .catch((e) => {
         console.log('e => ', e);
       })
   }
@@ -641,7 +646,7 @@ ig_cb=1
     * @return {Object} Promise
   */
   commonSearch(q, sessionid, ownUser, rankToken) {
-    return new Promise((resolve)=>{
+    return new Promise((resolve) => {
       rankToken = rankToken ? rankToken : ''
       let headers = {
         'x-ig-capabilities': '3w==',
@@ -653,21 +658,21 @@ ig_cb=1
         url: 'https://www.instagram.com/web/search/topsearch/?context=blended&query=' + q + '&rank_token=' + rankToken,
         headers,
       }
-      request(opts,(err,res,body)=>{
-        if(err){
+      request(opts, (err, res, body) => {
+        if (err) {
           console.log(err);
           resolve(err);
-        }else {
+        } else {
           let json_body = [];
-          try{
+          try {
             json_body = JSON.parse(body);
             resolve(json_body);
-          }catch(e){
+          } catch (e) {
             console.log(e);
-            resolve({users:[]});
+            resolve({ users: [] });
           }
         }
-        
+
       })
     })
   }
@@ -679,7 +684,7 @@ ig_cb=1
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHighlights(userId,sessionid,ownUser,csrfToken){
+  getHighlights(userId, sessionid, ownUser, csrfToken) {
     let url = `https://i.instagram.com/api/v1/highlights/${userId}/highlights_tray`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -691,7 +696,7 @@ ig_cb=1
     return fetch(url,
       {
         'method': 'get',
-        headers   
+        headers
       }
     ).then(t => t.json().then(r => {
       return r
@@ -705,7 +710,7 @@ ig_cb=1
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHighlight(mediaId,sessionid,ownUser){
+  getHighlight(mediaId, sessionid, ownUser) {
     let url = `https://i.instagram.com/api/v1/feed/reels_media/?user_ids=${mediaId}`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -716,7 +721,7 @@ ig_cb=1
     return fetch(url,
       {
         'method': 'get',
-        headers   
+        headers
       }
     ).then(t => t.json().then(r => {
       return r
@@ -730,7 +735,7 @@ ig_cb=1
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHDPic(userId,sessionid,ownUser,detail=false,csrfToken){
+  getHDPic(userId, sessionid, ownUser, detail = false, csrfToken) {
     let url = `https://i.instagram.com/api/v1/users/${userId}/info/`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -742,25 +747,25 @@ ig_cb=1
     return fetch(url,
       {
         'method': 'get',
-        headers   
+        headers
       }
     ).then(t => t.json().then(r => {
-      if(!detail){
+      if (!detail) {
         return r.user.hd_profile_pic_url_info
-      }else{
+      } else {
         return r.user
       }
-      
+
     }));
   }
 
   /*
   */
-  getCustomUserFollowers(query_hash,userId,sessionid,ownUser,end_cursor=null,csrfToken){
-    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:24`
-    if(end_cursor) {
+  getCustomUserFollowers(query_hash, userId, sessionid, ownUser, end_cursor = null, csrfToken) {
+    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:100`
+    if (end_cursor) {
       url += `,%22after%22:%22${end_cursor}%22}`
-    }else{
+    } else {
       url += "}"
     }
     let headers = {
@@ -773,7 +778,7 @@ ig_cb=1
     return fetch(url,
       {
         'method': 'get',
-        headers   
+        headers
       }
     ).then(t => t.json().then(r => r));
   }
@@ -785,11 +790,11 @@ ig_cb=1
    * @param {String} query_hash
    * @return {Object} Promise
    */
-  userEdges(userId,edge_count,query_hash,end_cursor = null,sessionid,ownUser,csrfToken){
+  userEdges(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:${edge_count}`
-    if(end_cursor) {
+    if (end_cursor) {
       url += `,%22after%22:%22${end_cursor}%22}`
-    }else{
+    } else {
       url += "}"
     }
     let headers = {
@@ -802,14 +807,14 @@ ig_cb=1
     return fetch(url,
       {
         'method': 'get',
-        headers   
+        headers
       }
-    ).then(t => t.json().then( (json)=> json ));
+    ).then(t => t.json().then((json) => json));
   }
 
-  userStories(userId){
+  userStories(userId) {
     return fetch(`https://i.instagram.com/api/v1/feed/user/${userId}/reel_media/`, {
-      
+
       'method': 'get',
       'headers':
         this.combineWithBaseHeader(
@@ -822,14 +827,93 @@ ig_cb=1
     }).then(t => t.json().then(r => r));
   }
 
-  getUserInfoFromId(userId){
+  getUserInfoFromId(userId) {
     return fetch(`https://i.instagram.com/api/v1/users/${userId}/info/`, {
-      
+
       'method': 'get',
-      'headers':{
-        "User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)"
+      'headers': {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)"
       }
     }).then(t => t.json().then(r => r));
   }
 
+  likePost(postId, sessionid, ownUser, csrfToken) {
+    return fetch('https://www.instagram.com/web/likes/' + postId + '/like/',
+      {
+        'method': 'POST',
+        'headers': {
+          "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)",
+          'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+          "x-csrftoken": csrfToken,
+        }
+      }).then(t =>
+        t.json().then(r => r)
+      )
+  }
+  getUserFollowRequest(sessionid, ownUser, csrfToken) {
+    return fetch(`https://www.instagram.com/accounts/access_tool/current_follow_requests`, {
+
+      'method': 'get',
+      'headers': {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)",
+        'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+        "x-csrftoken": csrfToken,
+      }
+
+    }).then(t => t.text().then(r => {
+      var subStr = r;
+      var startStr = '<script type="text/javascript">window._sharedData = ';
+      var start = subStr.indexOf(startStr) + startStr.length;
+      subStr = subStr.substr(start, subStr.length);
+      subStr = subStr.substr(0, subStr.indexOf('</script>') - 1);
+      var json = JSON.parse(subStr);
+      return json;
+    })
+    );
+  }
+
+  postDetail(shortcode, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
+    //let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:${edge_count}`
+    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22shortcode%22%3A%22${shortcode}%22%2C%22include_reel%22%3Atrue%2C%22first%22%3A${edge_count}`
+    if (end_cursor) {
+      url += `%2C%22after%22%3A%22${end_cursor}%3D%3D%22%7D`
+    } else {
+      url += "%7D"
+    }
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+    return fetch(url,
+      {
+        'method': 'get',
+        headers
+      }
+    ).then(t => t.json().then((json) => json));
+  }
+
+  taggedPost(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
+    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22id%22%3A%22${userId}%22%2C%22first%22%3A${edge_count}`
+    if (end_cursor) {
+      url += `%2C%22after%22%3A%22${end_cursor}%3D%3D%22%7D`
+    } else {
+      url += "%7D"
+    }
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+    return fetch(url,
+      {
+        'method': 'get',
+        headers
+      }
+    ).then(t => t.json().then((json) => json));
+  }
 }
