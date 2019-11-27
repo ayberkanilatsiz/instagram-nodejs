@@ -133,7 +133,7 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
-
+    
     var fetch_data = {
       'method': 'get',
       headers
@@ -144,6 +144,12 @@ module.exports = class Instagram {
       const match = regex.exec(data);
       if (typeof match[1] === 'undefined') {
         return '';
+      }
+      const jsonMatch = JSON.parse(match[1]);
+      if(jsonMatch.entry_data.ProfilePage[0].hasOwnProperty("graphql")){
+        return jsonMatch.entry_data.ProfilePage[0];
+      }else{
+        return jsonMatch.config.viewer;
       }
       return JSON.parse(match[1]).entry_data.ProfilePage[0];
     })).catch(err => {
