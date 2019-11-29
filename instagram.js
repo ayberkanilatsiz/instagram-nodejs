@@ -124,38 +124,27 @@ module.exports = class Instagram {
     * @param {String} username
     * @return {Object} Promise
   */
-  getUserDataByUsername(username, sessionid, ownUser, csrfToken) {
+ getUserDataByUsername(username, sessionid, ownUser, csrfToken) {
 
-    let headers = {
-      'x-ig-capabilities': '3w==',
-      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
-      // 'host': 'i.instagram.com',
-      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
-      "x-csrftoken": csrfToken,
-    }
-    
-    var fetch_data = {
-      'method': 'get',
-      headers
-    }
-
-    return fetch('https://www.instagram.com/' + username, fetch_data).then(res => res.text().then(function (data) {
-      const regex = /window\._sharedData = (.*);<\/script>/;
-      const match = regex.exec(data);
-      if (typeof match[1] === 'undefined') {
-        return '';
-      }
-      const jsonMatch = JSON.parse(match[1]);
-      if(jsonMatch.entry_data.ProfilePage[0].hasOwnProperty("graphql")){
-        return jsonMatch.entry_data.ProfilePage[0];
-      }else{
-        return jsonMatch.config.viewer;
-      }
-      return JSON.parse(match[1]).entry_data.ProfilePage[0];
-    })).catch(err => {
-      return err;
-    })
+  let headers = {
+    'x-ig-capabilities': '3w==',
+    'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+    // 'host': 'i.instagram.com',
+    'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+    "x-csrftoken": csrfToken,
   }
+  
+  var fetch_data = {
+    'method': 'get',
+    headers
+  }
+  return fetch(`https://www.instagram.com/${username}/?__a=1`, fetch_data).then(res => res.text().then(async function (data) {
+    const jsonUser = JSON.parse(data);
+    return jsonUser;
+  })).catch(err => {
+    return err;
+  })
+}
 
   /**
     Is private check
