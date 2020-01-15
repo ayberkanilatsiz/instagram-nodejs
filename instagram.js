@@ -750,8 +750,9 @@ module.exports = class Instagram {
       } else {
         return r.user
       }
-
-    }));
+    })).catch((e) => {
+      return undefined;
+    });
   }
 
   /*
