@@ -142,7 +142,7 @@ module.exports = class Instagram {
     const jsonUser = JSON.parse(data);
     return jsonUser;
   })).catch(err => {
-    return err;
+    return null;
   })
 }
 
@@ -805,7 +805,9 @@ module.exports = class Instagram {
         'method': 'get',
         headers
       }
-    ).then(t => t.json().then((json) => json));
+    ).then(t => t.json().then((json) => json)).catch((e) => {
+      return null;
+    });
   }
 
   userStories(userId) {
@@ -830,7 +832,9 @@ module.exports = class Instagram {
       'headers': {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)"
       }
-    }).then(t => t.json().then(r => r));
+    }).then(t => t.json().then(r => r)).catch((e) => {
+      return null;
+    });
   }
 
   likePost(postId, sessionid, ownUser, csrfToken) {
@@ -857,13 +861,17 @@ module.exports = class Instagram {
       }
 
     }).then(t => t.text().then(r => {
-      var subStr = r;
-      var startStr = '<script type="text/javascript">window._sharedData = ';
-      var start = subStr.indexOf(startStr) + startStr.length;
-      subStr = subStr.substr(start, subStr.length);
-      subStr = subStr.substr(0, subStr.indexOf('</script>') - 1);
-      var json = JSON.parse(subStr);
-      return json;
+      try{
+        var subStr = r;
+        var startStr = '<script type="text/javascript">window._sharedData = ';
+        var start = subStr.indexOf(startStr) + startStr.length;
+        subStr = subStr.substr(start, subStr.length);
+        subStr = subStr.substr(0, subStr.indexOf('</script>') - 1);
+        var json = JSON.parse(subStr);
+        return json;
+      }catch(e){
+        return [];
+      }
     })
     );
   }
@@ -888,7 +896,9 @@ module.exports = class Instagram {
         'method': 'get',
         headers
       }
-    ).then(t => t.json().then((json) => json));
+    ).then(t => t.json().then((json) => json)).catch((e) => {
+      return null;
+    })
   }
 
   taggedPost(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
