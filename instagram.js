@@ -876,6 +876,137 @@ module.exports = class Instagram {
     );
   }
 
+  savedPost(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
+    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22id%22%3A%22${userId}%22%2C%22first%22%3A${edge_count}`
+    if (end_cursor) {
+      url += `%2C%22after%22%3A%22${end_cursor}%3D%3D%22%7D`
+    } else {
+      url += "%7D"
+    }
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+    return fetch(url,
+      {
+        'method': 'get',
+        headers
+      }
+    ).then(t => t.json().then((json) => json)).catch((e) => {
+      return null;
+    });
+  }
+  savedPostDetail(query_hash, short_code, sessionid, ownUser, csrfToken) {
+    // https://www.instagram.com/graphql/query/?query_hash=06f8942777d97c874d3d88066e5e3824&variables=%7B%22shortcode%22%3A%22BgBhvv7AR8v%22%2C%22child_comment_count%22%3A3%2C%22fetch_comment_count%22%3A40%2C%22parent_comment_count%22%3A24%2C%22has_threaded_comments%22%3Atrue%7D
+    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22shortcode%22%3A%22${short_code}%22%2C%22child_comment_count%22%3A3%2C%22fetch_comment_count%22%3A40%2C%22parent_comment_count%22%3A24%2C%22has_threaded_comments%22%3Atrue%7D`
+    // if (end_cursor) {
+    //   url += `%2C%22after%22%3A%22${end_cursor}%3D%3D%22%7D`
+    // } else {
+    //   url += "%7D"
+    // }
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+    return fetch(url,
+      {
+        'method': 'get',
+        headers
+      }
+    ).then(t => t.json().then((json) => json)).catch((e) => {
+      return null;
+    });
+  }
+  blockedAccounts(end_cursor = null, sessionid, ownUser, csrfToken) {
+    let url = `https://www.instagram.com/accounts/access_tool/accounts_you_blocked?__a=1`
+    if (end_cursor) {
+      url += `&cursor=${end_cursor}`
+    }
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      // 'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.100 Safari/537.36',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      // "x-csrftoken": csrfToken,
+    }
+    return fetch(url,
+      {
+        'method': 'get',
+        headers
+      }
+    ).then(t => t.json().then((json) => json)).catch((e) => {
+      return null;
+    })
+  }
+  unBlock(userId, sessionid, ownUser, csrfToken) {
+    const headers = this.combineWithBaseHeader(
+      {
+        "x-csrftoken": `${csrfToken}`,
+        'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`
+      }
+    );
+    // 'accept': 'text/html,application/xhtml+xml,application/xml;q0.9,image/webp,image/apng,*.*;q=0.8',
+    // 'accept-encoding': 'gzip, deflate, br',
+    // "sec-fetch-mode": "cors",
+    // "sec-fetch-site": "same-origin",
+    const url = `https://www.instagram.com/web/friendships/${userId}/unblock/`
+    return fetch(url,
+      {
+        'method': 'post',
+        'headers': headers//headers
+      }).then(res => {
+        return res
+      })
+  }
+  getFormerName(sessionid, ownUser, csrfToken, isFname = true) {
+    let url = "https://www.instagram.com/accounts/access_tool/former_usernames"
+    if (isFname) {
+      url = "https://www.instagram.com/accounts/access_tool/former_full_names"
+    }
+    return fetch(url, {
+      'method': 'get',
+      'headers': {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)",
+        'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+        "x-csrftoken": csrfToken,
+      }
+    }).then(t => t.text().then(r => {
+      try {
+        // console.log('r => ', r);
+        var subStr = r;
+        var startStr = '<script type="text/javascript">window._sharedData = ';
+        var start = subStr.indexOf(startStr) + startStr.length
+        subStr = subStr.substr(start, subStr.length);
+        subStr = subStr.substr(0, subStr.indexOf('</script>') - 1);
+        var json = JSON.parse(subStr);
+        return { data: json.entry_data.SettingsPages[0].data.data, done: true };
+      } catch (e) {
+        return { done: false };
+      }
+    })
+    );
+  }
+  getUserStories(userId, sessionid, ownUser, csrfToken) {
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+    return fetch(`https://i.instagram.com/api/v1/feed/user/${userId}/reel_media/`, {
+      'method': 'get',
+      'headers': headers
+    }).then(t => t.json().then(r => r));
+  }
+
   postDetail(shortcode, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
     //let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:${edge_count}`
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22shortcode%22%3A%22${shortcode}%22%2C%22include_reel%22%3Atrue%2C%22first%22%3A${edge_count}`
