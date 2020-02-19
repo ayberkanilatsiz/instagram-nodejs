@@ -124,27 +124,27 @@ module.exports = class Instagram {
     * @param {String} username
     * @return {Object} Promise
   */
- getUserDataByUsername(username, sessionid, ownUser, csrfToken) {
+  getUserDataByUsername(username, sessionid, ownUser, csrfToken) {
 
-  let headers = {
-    'x-ig-capabilities': '3w==',
-    'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
-    // 'host': 'i.instagram.com',
-    'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
-    "x-csrftoken": csrfToken,
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+
+    var fetch_data = {
+      'method': 'get',
+      headers
+    }
+    return fetch(`https://www.instagram.com/${username}/?__a=1`, fetch_data).then(res => res.text().then(async function (data) {
+      const jsonUser = JSON.parse(data);
+      return jsonUser;
+    })).catch(err => {
+      return null;
+    })
   }
-  
-  var fetch_data = {
-    'method': 'get',
-    headers
-  }
-  return fetch(`https://www.instagram.com/${username}/?__a=1`, fetch_data).then(res => res.text().then(async function (data) {
-    const jsonUser = JSON.parse(data);
-    return jsonUser;
-  })).catch(err => {
-    return null;
-  })
-}
 
   /**
     Is private check
@@ -386,6 +386,8 @@ module.exports = class Instagram {
         'headers': headers//headers
       }).then(res => {
         return res
+      }).catch((e) => {
+        return null
       })
   }
 
@@ -422,7 +424,9 @@ module.exports = class Instagram {
         'headers': this.getHeaders()
       }).then(res =>
         res.json().then(t => t)
-      )
+      ).catch((e) => {
+        return null
+      })
   }
 
   /**
@@ -776,7 +780,9 @@ module.exports = class Instagram {
         'method': 'get',
         headers
       }
-    ).then(t => t.json().then(r => r));
+    ).then(t => t.json().then(r => r)).catch((e) => {
+      return null;
+    });
   }
 
   /**
@@ -861,7 +867,7 @@ module.exports = class Instagram {
       }
 
     }).then(t => t.text().then(r => {
-      try{
+      try {
         var subStr = r;
         var startStr = '<script type="text/javascript">window._sharedData = ';
         var start = subStr.indexOf(startStr) + startStr.length;
@@ -869,11 +875,13 @@ module.exports = class Instagram {
         subStr = subStr.substr(0, subStr.indexOf('</script>') - 1);
         var json = JSON.parse(subStr);
         return json;
-      }catch(e){
+      } catch (e) {
         return [];
       }
     })
-    );
+    ).catch((e) => {
+      return []
+    });
   }
 
   savedPost(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
@@ -963,6 +971,8 @@ module.exports = class Instagram {
         'headers': headers//headers
       }).then(res => {
         return res
+      }).catch((e) => {
+        return null
       })
   }
   getFormerName(sessionid, ownUser, csrfToken, isFname = true) {
@@ -1052,5 +1062,28 @@ module.exports = class Instagram {
         headers
       }
     ).then(t => t.json().then((json) => json));
+  }
+
+  block(userId, sessionid, ownUser, csrfToken) {
+    const headers = this.combineWithBaseHeader(
+      {
+        "x-csrftoken": `${csrfToken}`,
+        'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`
+      }
+    );
+    // 'accept': 'text/html,application/xhtml+xml,application/xml;q0.9,image/webp,image/apng,*.*;q=0.8',
+    // 'accept-encoding': 'gzip, deflate, br',
+    // "sec-fetch-mode": "cors",
+    // "sec-fetch-site": "same-origin",
+    const url = `https://www.instagram.com/web/friendships/${userId}/block/`
+    return fetch(url,
+      {
+        'method': 'post',
+        'headers': headers//headers
+      }).then(res => {
+        return res
+      }).catch((e) => {
+        return null
+      })
   }
 }
