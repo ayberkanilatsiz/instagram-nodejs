@@ -1042,6 +1042,30 @@ module.exports = class Instagram {
     })
   }
 
+  getUserStoriesv1(count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22reel_ids%22%3A%5B%22${ownUser}%22%5D%2C%22tag_names%22%3A%5B%5D%2C%22location_ids%22%3A%5B%5D%2C%22highlight_reel_ids%22%3A%5B%5D%2C%22precomposed_overlay%22%3Afalse%2C%22show_story_viewer_list%22%3Atrue%2C%22story_viewer_fetch_count%22%3A${count}%2C%22story_viewer_cursor%22%3A`
+    if (end_cursor) {
+      url += `${end_cursor}%2C%22stories_video_dash_manifest%22%3Afalse%7D`
+    }
+    else {
+      url += "%22%22%2C%22stories_video_dash_manifest%22%3Afalse%7D"
+    }
+    return fetch(url, {
+      'method': 'get',
+      'headers': headers
+    }).then(t => t.json().then(r => r)).catch((e) => {
+      console.log('e => ', e);
+      return null;
+    });
+  } 
+
   taggedPost(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22id%22%3A%22${userId}%22%2C%22first%22%3A${edge_count}`
     if (end_cursor) {
