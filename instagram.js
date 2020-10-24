@@ -676,6 +676,37 @@ module.exports = class Instagram {
     })
   }
 
+  mySearch(q, rankToken) {
+    return new Promise((resolve) => {
+      rankToken = rankToken ? rankToken : ''
+      let headers = {
+        // 'x-ig-capabilities': '3w==',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.80 Safari/537.36',
+        // 'host': 'i.instagram.com',
+        // 'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+      }
+      const opts = {
+        url: 'https://www.instagram.com/web/search/topsearch/?context=blended&query=' + q + '&rank_token=' + rankToken,
+        headers,
+      }
+      request(opts, (err, res, body) => {
+        if (err) {
+          console.log(err);
+          resolve(err);
+        } else {
+          let json_body = [];
+          try {
+            json_body = JSON.parse(body);
+            resolve(json_body);
+          } catch (e) {
+            console.log(e);
+            resolve({ users: [] });
+          }
+        }
+      })
+    })
+  }
+
   /**
    * User Media Changes to grapql
    * @param {String} userId
