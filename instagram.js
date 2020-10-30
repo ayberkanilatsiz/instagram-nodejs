@@ -124,7 +124,7 @@ module.exports = class Instagram {
     * @param {String} username
     * @return {Object} Promise
   */
-  getUserDataByUsername(username, sessionid, ownUser, csrfToken) {
+  getUserDataByUsername(username, sessionid = null, ownUser = null, csrfToken = null, proxy = null) {
 
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -137,6 +137,9 @@ module.exports = class Instagram {
     var fetch_data = {
       'method': 'get',
       headers
+    }
+    if (proxy) {
+      fetch_data.agent = proxy
     }
     return fetch(`https://www.instagram.com/${username}/?__a=1`, fetch_data).then(res => res.text().then(async function (data) {
       const jsonUser = JSON.parse(data);
@@ -369,7 +372,7 @@ module.exports = class Instagram {
     * @param {boolean} isUnfollow
     * @return {object} Promise of fetch request
   */
-  follow(userId, isUnfollow, sessionid, ownUser, csrfToken) {
+  follow(userId, isUnfollow, sessionid, ownUser, csrfToken, proxy = null) {
     const headers = this.combineWithBaseHeader(
       {
         "x-csrftoken": `${csrfToken}`,
@@ -380,15 +383,18 @@ module.exports = class Instagram {
     // 'accept-encoding': 'gzip, deflate, br',
     // "sec-fetch-mode": "cors",
     // "sec-fetch-site": "same-origin",
-    return fetch('https://www.instagram.com/web/friendships/' + userId + (isUnfollow == 1 ? '/unfollow' : '/follow'),
-      {
-        'method': 'post',
-        'headers': headers//headers
-      }).then(res => {
-        return res
-      }).catch((e) => {
-        return null
-      })
+    const opts = {
+      'method': 'post',
+      'headers': headers//headers
+    }
+    if (proxy) {
+      opts.agent = proxy
+    }
+    return fetch('https://www.instagram.com/web/friendships/' + userId + (isUnfollow == 1 ? '/unfollow' : '/follow'), opts).then(res => {
+      return res
+    }).catch((e) => {
+      return null
+    })
   }
 
   /**
@@ -644,7 +650,7 @@ module.exports = class Instagram {
     * @param {String} q
     * @return {Object} Promise
   */
-  commonSearch(q, sessionid, ownUser, rankToken) {
+  commonSearch(q, sessionid, ownUser, proxy = null, rankToken) {
     return new Promise((resolve) => {
       rankToken = rankToken ? rankToken : ''
       let headers = {
@@ -655,7 +661,7 @@ module.exports = class Instagram {
       }
       const opts = {
         url: 'https://www.instagram.com/web/search/topsearch/?context=blended&query=' + q + '&rank_token=' + rankToken,
-        headers,
+        headers
       }
       request(opts, (err, res, body) => {
         if (err) {
@@ -671,9 +677,32 @@ module.exports = class Instagram {
             resolve({ users: [] });
           }
         }
-
       })
     })
+  }
+
+  commonSearchV1(q, sessionid, ownUser, proxy = null, rankToken) {
+    rankToken = rankToken ? rankToken : ''
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+    }
+    const url = 'https://www.instagram.com/web/search/topsearch/?context=blended&query=' + q + '&rank_token=' + rankToken
+    const opts = {
+      headers,
+    }
+    if (proxy) {
+      opts.proxy = proxy
+    }
+    return fetch(url, opts).then(t => t.json().then(r => {
+      // console.log(' r=> ', r);
+      return r
+    })).catch((e) => {
+      console.log('e => ', e);
+      return { users: [] };
+    });
   }
 
   mySearch(q, rankToken) {
@@ -714,7 +743,7 @@ module.exports = class Instagram {
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHighlights(userId, sessionid, ownUser, csrfToken) {
+  getHighlights(userId, sessionid, ownUser, csrfToken, proxy) {
     let url = `https://i.instagram.com/api/v1/highlights/${userId}/highlights_tray`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -723,12 +752,14 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
-    return fetch(url,
-      {
-        'method': 'get',
-        headers
-      }
-    ).then(t => t.json().then(r => {
+    const opts = {
+      'method': 'get',
+      headers
+    }
+    if (proxy) {
+      opts.agent = proxy
+    }
+    return fetch(url, opts).then(t => t.json().then(r => {
       return r
     }));
   }
@@ -740,7 +771,7 @@ module.exports = class Instagram {
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHighlight(mediaId, sessionid, ownUser) {
+  getHighlight(mediaId, sessionid, ownUser, proxy = null) {
     let url = `https://i.instagram.com/api/v1/feed/reels_media/?user_ids=${mediaId}`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -748,12 +779,14 @@ module.exports = class Instagram {
       'host': 'i.instagram.com',
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
     }
-    return fetch(url,
-      {
-        'method': 'get',
-        headers
-      }
-    ).then(t => t.json().then(r => {
+    const opts = {
+      'method': 'get',
+      headers,
+    }
+    if (proxy) {
+      opts.agent = proxy
+    }
+    return fetch(url, opts).then(t => t.json().then(r => {
       return r
     }));
   }
@@ -765,7 +798,7 @@ module.exports = class Instagram {
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHDPic(userId, sessionid, ownUser, detail = false, csrfToken) {
+  getHDPic(userId, sessionid, ownUser, detail = false, csrfToken, proxy = null) {
     let url = `https://i.instagram.com/api/v1/users/${userId}/info/`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -774,12 +807,14 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
-    return fetch(url,
-      {
-        'method': 'get',
-        headers
-      }
-    ).then(t => t.json().then(r => {
+    const opts = {
+      'method': 'get',
+      headers
+    }
+    if (proxy) {
+      opts.agent = proxy
+    }
+    return fetch(url, opts).then(t => t.json().then(r => {
       if (!detail) {
         return r.user.hd_profile_pic_url_info
       } else {
@@ -792,7 +827,7 @@ module.exports = class Instagram {
 
   /*
   */
-  getCustomUserFollowers(query_hash, userId, sessionid, ownUser, end_cursor = null, csrfToken) {
+  getCustomUserFollowers(query_hash, userId, sessionid, ownUser, end_cursor = null, csrfToken, proxy = null) {
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:100`
     if (end_cursor) {
       url += `,%22after%22:%22${end_cursor}%22}`
@@ -806,11 +841,14 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
-    return fetch(url,
-      {
-        'method': 'get',
-        headers
-      }
+    const opts = {
+      'method': 'get',
+      headers
+    }
+    if (proxy) {
+      opts.agent = proxy
+    }
+    return fetch(url, opts
     ).then(t => t.json().then(r => r)).catch((e) => {
       return null;
     });
@@ -823,7 +861,7 @@ module.exports = class Instagram {
    * @param {String} query_hash
    * @return {Object} Promise
    */
-  userEdges(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
+  userEdges(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken, proxy = null) {
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:${edge_count}`
     if (end_cursor) {
       url += `,%22after%22:%22${end_cursor}%22}`
@@ -837,12 +875,14 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
-    return fetch(url,
-      {
-        'method': 'get',
-        headers
-      }
-    ).then(t => t.json().then((json) => json)).catch((e) => {
+    const opts = {
+      'method': 'get',
+      headers
+    }
+    if (proxy) {
+      opts.agent = proxy
+    }
+    return fetch(url, opts).then(t => t.json().then((json) => json)).catch((e) => {
       return null;
     });
   }
@@ -1095,7 +1135,7 @@ module.exports = class Instagram {
       console.log('e => ', e);
       return null;
     });
-  } 
+  }
 
   taggedPost(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22id%22%3A%22${userId}%22%2C%22first%22%3A${edge_count}`
