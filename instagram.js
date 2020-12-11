@@ -1181,4 +1181,97 @@ module.exports = class Instagram {
         return null
       })
   }
+
+  userReels(userId, end_cursor, sessionid, ownUser, csrfToken, count, proxy = null) {
+    const headers = {
+      'x-ig-capabilities': '3w==',
+      'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'host': 'i.instagram.com',
+      'content-type': 'application/x-www-form-urlencoded',
+      "x-csrftoken": csrfToken,
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`
+    }
+    let data = `target_user_id=${userId}&page_size=${count}&max_id=`
+    if (end_cursor) {
+      data = data + end_cursor
+    }
+    const opts = {
+      'method': 'POST',
+      'body': data,
+      'headers': headers//headers
+    }
+    // console.log('opts => ', opts);
+    if (proxy) {
+      opts.agent = proxy
+    }
+    // console.log('opts => ', opts);
+    return fetch('https://i.instagram.com/api/v1/clips/user/', opts).then(res => {
+      // console.log('res => ', res);
+      return res.json()
+    }).catch((e) => {
+      return null
+    })
+  }
+  
+  IgtvEdges(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken, proxy = null) {
+    let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22id%22%3A%22${userId}%22%2C%22first%22%3A${edge_count}`
+    if (end_cursor) {
+      url += `%2C%22after%22%3A%22${end_cursor}%3D%3D%22%7D`
+    } else {
+      url += "%7D"
+    }
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      // 'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+    const opts = {
+      'method': 'get',
+      headers
+    }
+    if (proxy) {
+      opts.agent = proxy
+    }
+    // console.log('opts => ', opts);
+    return fetch(url, opts
+    ).then(t => {
+      // console.log('t => ', t);
+      return t.json().then(r => r)
+    }).catch((e) => {
+      console.log('e => ', e);
+      return null;
+    });
+  }
+
+  IgtvEdgesDetail(shortcode, sessionid, ownUser, csrfToken, proxy = null) {
+    let url = `https://www.instagram.com/tv/${shortcode}/?__a=1`
+    let headers = {
+      'x-ig-capabilities': '3w==',
+      // 'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
+      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
+      // 'host': 'i.instagram.com',
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+    const opts = {
+      'method': 'get',
+      headers
+    }
+    if (proxy) {
+      opts.agent = proxy
+    }
+    // console.log('opts => ', opts);
+    return fetch(url, opts
+    ).then(t => {
+      // console.log('t => ', t);
+      return t.json().then(r => r)
+    }).catch((e) => {
+      console.log('e => ', e);
+      return null;
+    });
+  }
+
 }
