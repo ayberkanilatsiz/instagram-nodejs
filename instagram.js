@@ -124,7 +124,7 @@ module.exports = class Instagram {
     * @param {String} username
     * @return {Object} Promise
   */
-  getUserDataByUsername(username, sessionid = null, ownUser = null, csrfToken = null, proxy = null) {
+  getUserDataByUsername(username, sessionid = null, ownUser = null, csrfToken = null, proxy = null, user_agent = null) {
 
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -133,7 +133,9 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
-
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     var fetch_data = {
       'method': 'get',
       headers
@@ -372,7 +374,7 @@ module.exports = class Instagram {
     * @param {boolean} isUnfollow
     * @return {object} Promise of fetch request
   */
-  follow(userId, isUnfollow, sessionid, ownUser, csrfToken, proxy = null) {
+  follow(userId, isUnfollow, sessionid, ownUser, csrfToken, proxy = null, user_agent = null) {
     const headers = this.combineWithBaseHeader(
       {
         "x-csrftoken": `${csrfToken}`,
@@ -383,6 +385,9 @@ module.exports = class Instagram {
     // 'accept-encoding': 'gzip, deflate, br',
     // "sec-fetch-mode": "cors",
     // "sec-fetch-site": "same-origin",
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     const opts = {
       'method': 'post',
       'headers': headers//headers
@@ -743,7 +748,7 @@ module.exports = class Instagram {
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHighlights(userId, sessionid, ownUser, csrfToken, proxy) {
+  getHighlights(userId, sessionid, ownUser, csrfToken, proxy = null, user_agent = null) {
     let url = `https://i.instagram.com/api/v1/highlights/${userId}/highlights_tray`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -751,6 +756,9 @@ module.exports = class Instagram {
       'host': 'i.instagram.com',
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
+    }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
     }
     const opts = {
       'method': 'get',
@@ -771,13 +779,16 @@ module.exports = class Instagram {
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHighlight(mediaId, sessionid, ownUser, proxy = null) {
+  getHighlight(mediaId, sessionid, ownUser, proxy = null, user_agent = null) {
     let url = `https://i.instagram.com/api/v1/feed/reels_media/?user_ids=${mediaId}`
     let headers = {
       'x-ig-capabilities': '3w==',
       'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
       'host': 'i.instagram.com',
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}`
+    }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
     }
     const opts = {
       'method': 'get',
@@ -798,7 +809,7 @@ module.exports = class Instagram {
    * @param {String} ownUser
    * @return {Object} Promise
    */
-  getHDPic(userId, sessionid, ownUser, detail = false, csrfToken, proxy = null) {
+  getHDPic(userId, sessionid, ownUser, detail = false, csrfToken, proxy = null, user_agent = null) {
     let url = `https://i.instagram.com/api/v1/users/${userId}/info/`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -806,6 +817,9 @@ module.exports = class Instagram {
       'host': 'i.instagram.com',
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
+    }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
     }
     const opts = {
       'method': 'get',
@@ -827,7 +841,7 @@ module.exports = class Instagram {
 
   /*
   */
-  getCustomUserFollowers(query_hash, userId, sessionid, ownUser, end_cursor = null, csrfToken, proxy = null) {
+  getCustomUserFollowers(query_hash, userId, sessionid, ownUser, end_cursor = null, csrfToken, proxy = null, user_agent = null) {
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:100`
     if (end_cursor) {
       url += `,%22after%22:%22${end_cursor}%22}`
@@ -840,6 +854,9 @@ module.exports = class Instagram {
       'host': 'i.instagram.com',
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
+    }
+    if (user_agent) {
+      headers['user-agent'] = user_agent
     }
     const opts = {
       'method': 'get',
@@ -861,7 +878,7 @@ module.exports = class Instagram {
    * @param {String} query_hash
    * @return {Object} Promise
    */
-  userEdges(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken, proxy = null) {
+  userEdges(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken, proxy = null, user_agent = null) {
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:${edge_count}`
     if (end_cursor) {
       url += `,%22after%22:%22${end_cursor}%22}`
@@ -874,6 +891,9 @@ module.exports = class Instagram {
       // 'host': 'i.instagram.com',
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
+    }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
     }
     const opts = {
       'method': 'get',
@@ -902,12 +922,16 @@ module.exports = class Instagram {
     }).then(t => t.json().then(r => r));
   }
 
-  getUserInfoFromId(userId) {
+  getUserInfoFromId(userId, user_agent = null) {
+    let u_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)"
+    if (user_agent) {
+      u_agent = user_agent
+    }
     return fetch(`https://i.instagram.com/api/v1/users/${userId}/info/`, {
 
       'method': 'get',
       'headers': {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)"
+        "user-agent": u_agent,
       }
     }).then(t => t.json().then(r => r)).catch((e) => {
       return null;
@@ -927,12 +951,16 @@ module.exports = class Instagram {
         t.json().then(r => r)
       )
   }
-  getUserFollowRequest(sessionid, ownUser, csrfToken) {
+  getUserFollowRequest(sessionid, ownUser, csrfToken, agent = null) {
+    let user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)"
+    if (agent) {
+      user_agent = agent
+    }
     return fetch(`https://www.instagram.com/accounts/access_tool/current_follow_requests`, {
 
       'method': 'get',
       'headers': {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)",
+        "user-agent": user_agent,
         'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
         "x-csrftoken": csrfToken,
       }
@@ -955,7 +983,7 @@ module.exports = class Instagram {
     });
   }
 
-  savedPost(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
+  savedPost(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken, user_agent = null) {
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22id%22%3A%22${userId}%22%2C%22first%22%3A${edge_count}`
     if (end_cursor) {
       url += `%2C%22after%22%3A%22${end_cursor}%3D%3D%22%7D`
@@ -969,6 +997,9 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     return fetch(url,
       {
         'method': 'get',
@@ -978,7 +1009,7 @@ module.exports = class Instagram {
       return null;
     });
   }
-  savedPostDetail(query_hash, short_code, sessionid, ownUser, csrfToken) {
+  savedPostDetail(query_hash, short_code, sessionid, ownUser, csrfToken, user_agent = null) {
     // https://www.instagram.com/graphql/query/?query_hash=06f8942777d97c874d3d88066e5e3824&variables=%7B%22shortcode%22%3A%22BgBhvv7AR8v%22%2C%22child_comment_count%22%3A3%2C%22fetch_comment_count%22%3A40%2C%22parent_comment_count%22%3A24%2C%22has_threaded_comments%22%3Atrue%7D
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22shortcode%22%3A%22${short_code}%22%2C%22child_comment_count%22%3A3%2C%22fetch_comment_count%22%3A40%2C%22parent_comment_count%22%3A24%2C%22has_threaded_comments%22%3Atrue%7D`
     // if (end_cursor) {
@@ -993,6 +1024,9 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     return fetch(url,
       {
         'method': 'get',
@@ -1002,7 +1036,7 @@ module.exports = class Instagram {
       return null;
     });
   }
-  blockedAccounts(end_cursor = null, sessionid, ownUser, csrfToken) {
+  blockedAccounts(end_cursor = null, sessionid, ownUser, csrfToken, user_agent = null) {
     let url = `https://www.instagram.com/accounts/access_tool/accounts_you_blocked?__a=1`
     if (end_cursor) {
       url += `&cursor=${end_cursor}`
@@ -1015,6 +1049,9 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       // "x-csrftoken": csrfToken,
     }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     return fetch(url,
       {
         'method': 'get',
@@ -1024,13 +1061,16 @@ module.exports = class Instagram {
       return null;
     })
   }
-  unBlock(userId, sessionid, ownUser, csrfToken) {
+  unBlock(userId, sessionid, ownUser, csrfToken, user_agent = null) {
     const headers = this.combineWithBaseHeader(
       {
         "x-csrftoken": `${csrfToken}`,
         'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`
       }
     );
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     // 'accept': 'text/html,application/xhtml+xml,application/xml;q0.9,image/webp,image/apng,*.*;q=0.8',
     // 'accept-encoding': 'gzip, deflate, br',
     // "sec-fetch-mode": "cors",
@@ -1046,18 +1086,22 @@ module.exports = class Instagram {
         return null
       })
   }
-  getFormerName(sessionid, ownUser, csrfToken, isFname = true) {
+  getFormerName(sessionid, ownUser, csrfToken, isFname = true, user_agent = null) {
     let url = "https://www.instagram.com/accounts/access_tool/former_usernames"
     if (isFname) {
       url = "https://www.instagram.com/accounts/access_tool/former_full_names"
     }
+    const headers = {
+      "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)",
+      'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
+      "x-csrftoken": csrfToken,
+    }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     return fetch(url, {
       'method': 'get',
-      'headers': {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 105.0.0.11.118 (iPhone11,8; iOS 12_3_1; en_US; en-US; scale=2.00; 828x1792; 165586599)",
-        'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
-        "x-csrftoken": csrfToken,
-      }
+      'headers': headers
     }).then(t => t.text().then(r => {
       try {
         // console.log('r => ', r);
@@ -1088,7 +1132,7 @@ module.exports = class Instagram {
     }).then(t => t.json().then(r => r));
   }
 
-  postDetail(shortcode, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
+  postDetail(shortcode, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken, user_agent = null) {
     //let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables={%22id%22:%22${userId}%22,%22first%22:${edge_count}`
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22shortcode%22%3A%22${shortcode}%22%2C%22include_reel%22%3Atrue%2C%22first%22%3A${edge_count}`
     if (end_cursor) {
@@ -1103,23 +1147,30 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     return fetch(url,
       {
         'method': 'get',
         headers
       }
     ).then(t => t.json().then((json) => json)).catch((e) => {
+      console.log('e => ', e);
       return null;
     })
   }
 
-  getUserStoriesv1(count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken) {
+  getUserStoriesv1(count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken, user_agent = null) {
     let headers = {
       'x-ig-capabilities': '3w==',
       'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
       // 'host': 'i.instagram.com',
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
+    }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
     }
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22reel_ids%22%3A%5B%22${ownUser}%22%5D%2C%22tag_names%22%3A%5B%5D%2C%22location_ids%22%3A%5B%5D%2C%22highlight_reel_ids%22%3A%5B%5D%2C%22precomposed_overlay%22%3Afalse%2C%22show_story_viewer_list%22%3Atrue%2C%22story_viewer_fetch_count%22%3A${count}%2C%22story_viewer_cursor%22%3A`
     if (end_cursor) {
@@ -1182,7 +1233,7 @@ module.exports = class Instagram {
       })
   }
 
-  userReels(userId, end_cursor, sessionid, ownUser, csrfToken, count, proxy = null) {
+  userReels(userId, end_cursor, sessionid, ownUser, csrfToken, count, proxy = null, user_agent = null) {
     const headers = {
       'x-ig-capabilities': '3w==',
       'user-agent': 'Instagram 9.5.1 (iPhone9,2; iOS 10_0_2; en_US; en-US; scale=2.61; 1080x1920) AppleWebKit/420+',
@@ -1190,6 +1241,9 @@ module.exports = class Instagram {
       'content-type': 'application/x-www-form-urlencoded',
       "x-csrftoken": csrfToken,
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`
+    }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
     }
     let data = `target_user_id=${userId}&page_size=${count}&max_id=`
     if (end_cursor) {
@@ -1212,8 +1266,8 @@ module.exports = class Instagram {
       return null
     })
   }
-  
-  IgtvEdges(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken, proxy = null) {
+
+  IgtvEdges(userId, edge_count, query_hash, end_cursor = null, sessionid, ownUser, csrfToken, proxy = null, user_agent = null) {
     let url = `https://www.instagram.com/graphql/query/?query_hash=${query_hash}&variables=%7B%22id%22%3A%22${userId}%22%2C%22first%22%3A${edge_count}`
     if (end_cursor) {
       url += `%2C%22after%22%3A%22${end_cursor}%3D%3D%22%7D`
@@ -1228,6 +1282,9 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     const opts = {
       'method': 'get',
       headers
@@ -1246,7 +1303,7 @@ module.exports = class Instagram {
     });
   }
 
-  IgtvEdgesDetail(shortcode, sessionid, ownUser, csrfToken, proxy = null) {
+  IgtvEdgesDetail(shortcode, sessionid, ownUser, csrfToken, proxy = null, user_agent = null) {
     let url = `https://www.instagram.com/tv/${shortcode}/?__a=1`
     let headers = {
       'x-ig-capabilities': '3w==',
@@ -1256,6 +1313,9 @@ module.exports = class Instagram {
       'cookie': `sessionid=${sessionid}; ds_user_id=${ownUser}; csrftoken=${csrfToken};`,
       "x-csrftoken": csrfToken,
     }
+    if (user_agent) {
+      headers["user-agent"] = user_agent
+    }
     const opts = {
       'method': 'get',
       headers
@@ -1273,5 +1333,4 @@ module.exports = class Instagram {
       return null;
     });
   }
-
 }
