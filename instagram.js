@@ -583,6 +583,9 @@ module.exports = class Instagram {
       })
   }
 
+
+
+
   /**
     * End cursor - t.entry_data.TagPage[0].tag.media.page_info['end_cursor']
     * Media(nodes) - t.entry_data.TagPage[0].tag.media['nodes']
@@ -868,6 +871,67 @@ module.exports = class Instagram {
     return fetch(url, opts
     ).then(t => t.json().then(r => r)).catch((e) => {
       return null;
+    });
+  }
+
+  /**
+   * User Media Changes to grapql
+   * @param {String} username
+   * @param {String} end_cursor
+   * @param {String} sessionid
+   * @param {String} ownUser
+   * @param {String} csrfToken
+   * @return {Object} Promise
+   */
+
+  userEdgesV2(username, end_cursor = null, sessionid, ownUser, csrfToken) {
+    return fetch("https://www.instagram.com/graphql/query", {
+      "headers": {
+        "accept": "*/*",
+        "accept-language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
+        "content-type": "application/x-www-form-urlencoded",
+        "priority": "u=1, i",
+        "sec-ch-prefers-color-scheme": "light",
+        "sec-ch-ua-platform": "\"macOS\"",
+        "sec-ch-ua-platform-version": "\"14.1.1\"",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "x-csrftoken": csrfToken,
+        "cookie": `csrftoken=${csrfToken}; ds_user_id=${ownUser}; sessionid=${sessionid};`
+        
+      },
+      "body": `variables=${encodeURIComponent(JSON.stringify({
+        after: end_cursor,
+        before: null,
+        data: {
+          count: 12,
+          include_relationship_info: true,
+          latest_besties_reel_media: true,
+          latest_reel_media: true
+        },
+        first: 12,
+        last: null,
+        username,
+        __relay_internal__pv__PolarisIsLoggedInrelayprovider: true,
+        __relay_internal__pv__PolarisFeedShareMenurelayprovider: true
+      }))}&server_timestamps=true&doc_id=8656566431124939`,
+      "method": "POST"
+    }).then(res => res.json()).then(res => {
+      const count = res.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges.length;
+      const edges = res.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges
+    
+      const response = {
+        data:{
+          user:{
+            edge_owner_to_timeline_media:{
+              edges,
+              count,
+            },
+          }
+        }
+      }
+      return response
     });
   }
 
