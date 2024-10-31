@@ -920,12 +920,14 @@ module.exports = class Instagram {
     }).then(res => res.json()).then(res => {
       const count = res.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges.length;
       const edges = res.data.xdt_api__v1__feed__user_timeline_graphql_connection.edges
+      const page_info = res.data.xdt_api__v1__feed__user_timeline_graphql_connection.page_info
     
       const response = {
         data:{
           user:{
             edge_owner_to_timeline_media:{
               edges,
+              page_info,
               count,
             },
           }
